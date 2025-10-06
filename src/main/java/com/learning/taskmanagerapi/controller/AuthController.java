@@ -1,4 +1,4 @@
-package com.learning.taskmanagerapi.conroller;
+package com.learning.taskmanagerapi.controller;
 
 import com.learning.taskmanagerapi.dto.LoginRequest;
 import com.learning.taskmanagerapi.dto.RegisterRequest;
