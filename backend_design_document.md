@@ -2,8 +2,8 @@
 
 ## I. Introduction and Goals
 
-This document outlines the architecture and design specifications for the **backend API** of the collaborative **Task Management System**, a clone of **Trello**.  
-The primary goal is to provide a **robust**, **secure**, and **real-time capable** foundation for the frontend application.
+This document outlines the architecture and design specifications for the **backend API** of the collaborative **Task Management System**, a clone of **Trello**.
+The primary goal is to provide a **robust** and **secure** foundation for the frontend application.
 
 ### 🧩 Key Technologies
 | Layer | Technology |
@@ -12,13 +12,11 @@ The primary goal is to provide a **robust**, **secure**, and **real-time capable
 | **Database** | MySQL (Relational) |
 | **Persistence** | Spring Data JPA / Hibernate |
 | **Security** | JWT (JSON Web Tokens) |
-| **Real-time** | Spring WebSocket (STOMP) |
 
 ### 🎯 Core Backend Objectives
 - Provide **secure, stateless authentication** using JWT.
 - Enforce **Role-Based Access Control (RBAC)** for admin and user operations.
 - Implement **CRUD** for Boards, Lists (Columns), and Tasks.
-- Enable **real-time collaboration** via WebSockets for live updates.
 
 ---
 
@@ -34,7 +32,6 @@ The backend employs a **Layered Architecture** commonly used in Spring Boot appl
 | **Service** | Business logic, transaction management, and repository interaction. | `@Service` classes |
 | **Repository** | Data access using Spring Data JPA. | `@Repository` interfaces |
 | **Security** | JWT-based authentication and authorization. | `SecurityConfig`, `JwtFilter` |
-| **WebSocket** | Handles STOMP messaging for real-time updates. | `WebSocketConfig`, message handlers |
 
 ---
 
@@ -89,44 +86,8 @@ All protected endpoints require a valid **JWT** in the `Authorization: Bearer <t
 
 ---
 
-## VI. Real-time Communication Design (WebSocket)
-
-WebSockets enable **real-time updates** for all users collaborating on the same board, reducing the need for API polling.
-
-### A. WebSocket Configuration (STOMP)
-- **Endpoint:** `/ws`
-- **Broker:** Simple in-memory broker (default) or RabbitMQ for scalability.
-- **Library:** `spring-boot-starter-websocket`
-
-### B. Subscription Strategy
-
-| Event | Topic | Client Action | Server Action |
-|--------|--------|----------------|----------------|
-| Board opened | `/topic/board/{boardId}` | Client subscribes when viewing a board | Server pushes updates when tasks change |
-| Task moved | `/topic/board/{boardId}` | Client updates UI | Backend publishes `TASK_MOVED` event |
-
-#### Flow Example:
-1. User A opens **Board 123** → subscribes to `/topic/board/123`.
-2. User B moves a task in Board 123 → triggers `PATCH /api/tasks/{id}/move`.
-3. The backend updates MySQL and broadcasts an update via:
-   ```java
-   simpMessagingTemplate.convertAndSend("/topic/board/123", messagePayload);
-4. User A’s frontend updates instantly.
-
-### C. Message Content
-Messages should be minimal and descriptive:
-```json
-{
-"event": "TASK_MOVED",
-"taskId": 45,
-"newListId": 3,
-"newPosition": 2
-}
-```
-
 ## 🏁 Summary
 This backend design ensures:
 - Scalable REST API with JWT authentication
 - Role-based access and secure endpoints
-- Real-time collaboration via WebSockets
 - Clean architecture separating controller, service, and repository logic

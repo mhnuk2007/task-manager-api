@@ -23,11 +23,10 @@ public class TaskService {
     @Autowired
     private UserRepository userRepository;
 
-
     public TaskDto createTask(TaskDto dto) {
         Board board = boardRepository.findById(dto.getBoardId())
                 .orElseThrow(() -> new RuntimeException("Board not found"));
-        User assignedUser = dto.getAssignedToId()!=null
+        User assignedUser = dto.getAssignedToId() != null
                 ? userRepository.findById(dto.getAssignedToId())
                 .orElseThrow(() -> new RuntimeException("User not found"))
                 : null;
@@ -41,7 +40,27 @@ public class TaskService {
                 .build();
 
         Task savedTask = taskRepository.save(task);
-        return mapToDto(savedTask);
+        TaskDto response = mapToDto(savedTask);
+
+        return response;
+    }
+
+    public void deleteTask(Long taskId) {
+        taskRepository.deleteById(taskId);
+    }
+
+    public List<TaskDto> getTaskByBoardId(Long boardId) {
+        return taskRepository.findByBoardId(boardId)
+                .stream()
+                .map(this::mapToDto)
+                .collect(Collectors.toList());
+    }
+
+    public List<TaskDto> getTasksByUser(Long userId) {
+        return taskRepository.findByAssignedToId(userId)
+                .stream()
+                .map(this::mapToDto)
+                .collect(Collectors.toList());
     }
 
     private TaskDto mapToDto(Task savedTask) {
@@ -54,25 +73,5 @@ public class TaskService {
                 .assignedToId(savedTask.getAssignedTo() != null ? savedTask.getAssignedTo().getId() : null)
                 .assignedToUsername(savedTask.getAssignedTo() != null ? savedTask.getAssignedTo().getUsername() : null)
                 .build();
-    }
-
-
-    public List<TaskDto> getTaskByBoardId(Long boardId) {
-        return taskRepository.findByBoardId(boardId)
-                .stream()
-                .map(this::mapToDto)
-                .collect(Collectors.toList());
-    }
-
-
-    public List<TaskDto> getTasksByUser(Long userId) {
-        return taskRepository.findByAssignedToId(userId)
-                .stream()
-                .map(this::mapToDto)
-                .collect(Collectors.toList());
-    }
-
-    public void deleteTask(Long taskId){
-        taskRepository.deleteById(taskId);
     }
 }
