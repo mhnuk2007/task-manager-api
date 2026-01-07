@@ -170,4 +170,6 @@ This project is licensed under the **MIT License**.
 
 **Mohan Lal (mhnuk2007)**  
 GitHub: [https://github.com/mhnuk2007](https://github.com/mhnuk2007)
+LinkedIn: [linkedin.com/in/mohan-lal-b79790126](https://www.linkedin.com/in/mhnuk2007/)
+
 
